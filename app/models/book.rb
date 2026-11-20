@@ -1,7 +1,5 @@
 class Book < ApplicationRecord
-  SERIAL_NUMBER_FORMAT = /\A\d{6}\z/
-
-  validates :serial_number, presence: true, uniqueness: true, format: { with: SERIAL_NUMBER_FORMAT }
+  validates :serial_number, presence: true, uniqueness: true, six_digit_number: true
   validates :title, presence: true
   validates :author, presence: true
 end
