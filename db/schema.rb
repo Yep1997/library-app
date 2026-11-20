@@ -10,8 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 0) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_20_224307) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
+  create_table "readers", force: :cascade do |t|
+    t.string "card_number", limit: 6, null: false
+    t.string "full_name", null: false
+    t.string "email", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["card_number"], name: "index_readers_on_card_number", unique: true
+    t.index ["email"], name: "index_readers_on_email", unique: true
+  end
 end
