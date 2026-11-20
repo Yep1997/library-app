@@ -18,4 +18,23 @@ RSpec.describe Book, type: :model do
   describe "author" do
     it { is_expected.to validate_presence_of(:author) }
   end
+
+  describe "loans" do
+    it { is_expected.to have_many(:loans) }
+
+    it "exposes the loan that has not been returned yet as the active one" do
+      book = create(:book)
+      create(:loan, :returned, book:)
+      active_loan = create(:loan, book:)
+
+      expect(book.active_loan).to eq(active_loan)
+    end
+
+    it "are deleted together with the book, keeping their readers" do
+      loan = create(:loan)
+
+      expect { loan.book.destroy }.to change(Loan, :count).by(-1)
+      expect(Reader.exists?(loan.reader_id)).to be(true)
+    end
+  end
 end

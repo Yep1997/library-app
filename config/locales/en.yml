@@ -2,3 +2,5 @@ en:
   errors:
     messages:
       six_digit_number: "must be a six-digit number"
+      already_borrowed: "is already borrowed"
+      earlier_than_borrowed_at: "can't be earlier than the borrow time"
