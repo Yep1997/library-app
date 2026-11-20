@@ -1,0 +1,11 @@
+#!/bin/bash -e
+
+# Remove a stale pid file left by a previously killed server.
+rm -f tmp/pids/server.pid
+
+# Create, migrate and seed the database before booting the server.
+if [ "$1" == "bin/rails" ] && [ "$2" == "server" ]; then
+  bin/rails db:prepare
+fi
+
+exec "$@"

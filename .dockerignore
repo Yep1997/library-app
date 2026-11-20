@@ -1,0 +1,8 @@
+/.git/
+/.github/
+/.env*
+/config/*.key
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
