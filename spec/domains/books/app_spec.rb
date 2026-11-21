@@ -62,4 +62,30 @@ RSpec.describe Books::App do
       expect { described_class.find("999999") }.to raise_error(Books::BookNotFound, "Book 999999 not found")
     end
   end
+
+  describe ".add" do
+    it "adds an available book to the library" do
+      summary = described_class.add(serial_number: "000001", title: "Refactoring", author: "Martin Fowler")
+
+      expect(summary).to eq(
+        Books::BookSummary.new(serial_number: "000001", title: "Refactoring", author: "Martin Fowler", status: :available)
+      )
+      expect(Book.find_by(serial_number: "000001")).to have_attributes(title: "Refactoring", author: "Martin Fowler")
+    end
+
+    it "raises InvalidBook with validation errors when the data is invalid" do
+      create(:book, serial_number: "000001")
+
+      expect { described_class.add(serial_number: "000001", title: "", author: "Martin Fowler") }
+        .to raise_error(Books::InvalidBook) { |error|
+          expect(error.errors).to eq(serial_number: [ "has already been taken" ], title: [ "can't be blank" ])
+        }
+    end
+
+    it "does not add a book when the data is invalid" do
+      expect { described_class.add(serial_number: "123", title: "Refactoring", author: "Martin Fowler") }
+        .to raise_error(Books::InvalidBook)
+      expect(Book.count).to eq(0)
+    end
+  end
 end
