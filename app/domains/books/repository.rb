@@ -11,6 +11,13 @@ module Books
       to_details(book)
     end
 
+    def create(attributes)
+      book = Book.new(attributes)
+      raise InvalidBook, book.errors.to_hash unless book.save
+
+      to_summary(book)
+    end
+
     private
 
     def to_summary(book)

@@ -1,5 +1,7 @@
 module Api
   class BooksController < BaseController
+    include BookParams
+
     def index
       render json: BookSummaryResource.new(Books::App.list)
     end
@@ -8,6 +10,12 @@ module Api
       book = Books::App.find(params[:serial_number])
 
       render json: BookDetailsResource.new(book)
+    end
+
+    def create
+      book = Books::App.add(**book_params)
+
+      render json: BookSummaryResource.new(book), status: :created, location: api_book_url(book.serial_number)
     end
   end
 end

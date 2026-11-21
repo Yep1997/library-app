@@ -60,4 +60,38 @@ RSpec.describe "Books API", type: :request do
       expect(response.parsed_body).to eq("error" => "Book 999999 not found")
     end
   end
+
+  describe "POST /api/books" do
+    it "adds the book and returns it" do
+      post api_books_path, params: { book: { serial_number: "000001", title: "Refactoring", author: "Martin Fowler" } }, as: :json
+
+      expect(response).to have_http_status(:created)
+      expect(response.location).to end_with(api_book_path("000001"))
+      expect(response.parsed_body).to eq(
+        "book" => { "serial_number" => "000001", "title" => "Refactoring", "author" => "Martin Fowler", "status" => "available" }
+      )
+    end
+
+    it "responds with validation errors when the data is invalid" do
+      post api_books_path, params: { book: { serial_number: "123", title: "", author: "Martin Fowler" } }, as: :json
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.parsed_body).to eq(
+        "errors" => { "serial_number" => [ "must be a six-digit number" ], "title" => [ "can't be blank" ] }
+      )
+    end
+
+    it "responds with validation errors when fields are missing" do
+      post api_books_path, params: { book: { title: "Refactoring" } }, as: :json
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.parsed_body["errors"].keys).to contain_exactly("serial_number", "author")
+    end
+
+    it "responds with bad request when the payload is empty" do
+      post api_books_path, params: {}, as: :json
+
+      expect(response).to have_http_status(:bad_request)
+    end
+  end
 end
