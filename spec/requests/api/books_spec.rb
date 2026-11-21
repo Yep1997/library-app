@@ -24,4 +24,40 @@ RSpec.describe "Books API", type: :request do
       expect(response.parsed_body).to eq("books" => [])
     end
   end
+
+  describe "GET /api/books/:serial_number" do
+    it "returns the book with its full borrowing history" do
+      book = create(:book, serial_number: "000001", title: "Refactoring", author: "Martin Fowler")
+      reader = create(:reader, card_number: "100001", full_name: "Anna Kowalska", email: "anna@example.com")
+      create(:loan, :returned, book:, reader:,
+        borrowed_at: Time.zone.parse("2026-01-10 10:00"), due_on: Date.new(2026, 2, 9), returned_at: Time.zone.parse("2026-02-01 12:30"))
+
+      get api_book_path("000001")
+
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body).to eq(
+        "book" => {
+          "serial_number" => "000001",
+          "title" => "Refactoring",
+          "author" => "Martin Fowler",
+          "status" => "available",
+          "loans" => [
+            {
+              "borrowed_at" => "2026-01-10T10:00:00.000Z",
+              "due_on" => "2026-02-09",
+              "returned_at" => "2026-02-01T12:30:00.000Z",
+              "reader" => { "card_number" => "100001", "full_name" => "Anna Kowalska", "email" => "anna@example.com" }
+            }
+          ]
+        }
+      )
+    end
+
+    it "responds with not found for an unknown serial number" do
+      get api_book_path("999999")
+
+      expect(response).to have_http_status(:not_found)
+      expect(response.parsed_body).to eq("error" => "Book 999999 not found")
+    end
+  end
 end
