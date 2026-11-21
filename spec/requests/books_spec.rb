@@ -49,6 +49,14 @@ RSpec.describe "Books", type: :request do
       expect(response.body).to include("Anna Kowalska", "100001", "anna@example.com")
     end
 
+    it "offers removing the book" do
+      create(:book, serial_number: "000001")
+
+      get book_path("000001")
+
+      expect(response.body).to include(%(action="#{book_path("000001")}"), "Delete book")
+    end
+
     it "marks a loan that has not been returned yet" do
       create(:loan, book: create(:book, serial_number: "000001"))
 
@@ -88,6 +96,25 @@ RSpec.describe "Books", type: :request do
       expect(response).to have_http_status(:unprocessable_content)
       expect(response.body).to include("Serial number must be a six-digit number", "Author can&#39;t be blank")
       expect(response.body).to include(%(value="Refactoring"))
+    end
+  end
+
+  describe "DELETE /books/:serial_number" do
+    it "removes the book and returns to the list" do
+      create(:book, serial_number: "000001", title: "Refactoring")
+
+      delete book_path("000001")
+
+      expect(response).to redirect_to(books_path)
+      follow_redirect!
+      expect(response.body).to include("Book was removed.")
+      expect(response.body).not_to include("Refactoring")
+    end
+
+    it "responds with not found for an unknown serial number" do
+      delete book_path("999999")
+
+      expect(response).to have_http_status(:not_found)
     end
   end
 end

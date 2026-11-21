@@ -13,6 +13,8 @@
   <dd class="status--<%= @book.status %>"><%= @book.status.to_s.humanize %></dd>
 </dl>
 
+<%= button_to "Delete book", book_path(@book.serial_number), method: :delete %>
+
 <h2>Borrowing history</h2>
 
 <table>

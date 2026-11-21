@@ -7,10 +7,10 @@ Rails.application.routes.draw do
 
   root "books#index"
 
-  resources :books, only: %i[index show new create], param: :serial_number
+  resources :books, only: %i[index show new create destroy], param: :serial_number
 
   namespace :api, defaults: { format: :json } do
-    resources :books, only: %i[index show create], param: :serial_number
+    resources :books, only: %i[index show create destroy], param: :serial_number
   end
 
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)

@@ -23,4 +23,10 @@ class BooksController < ApplicationController
     @errors = error.errors
     render :new, status: :unprocessable_content
   end
+
+  def destroy
+    Books::App.remove(params[:serial_number])
+
+    redirect_to books_path, notice: "Book was removed."
+  end
 end

@@ -94,4 +94,22 @@ RSpec.describe "Books API", type: :request do
       expect(response).to have_http_status(:bad_request)
     end
   end
+
+  describe "DELETE /api/books/:serial_number" do
+    it "removes the book" do
+      create(:book, serial_number: "000001")
+
+      delete api_book_path("000001")
+
+      expect(response).to have_http_status(:no_content)
+      expect(Book.exists?(serial_number: "000001")).to be(false)
+    end
+
+    it "responds with not found for an unknown serial number" do
+      delete api_book_path("999999")
+
+      expect(response).to have_http_status(:not_found)
+      expect(response.parsed_body).to eq("error" => "Book 999999 not found")
+    end
+  end
 end
