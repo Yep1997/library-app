@@ -33,3 +33,8 @@ td {
 .errors {
   color: #cf222e;
 }
+
+.alert {
+  background: #ffebe9;
+  padding: 0.5rem 1rem;
+}

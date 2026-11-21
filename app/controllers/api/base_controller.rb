@@ -7,5 +7,13 @@ module Api
     rescue_from Books::InvalidBook do |error|
       render json: { errors: error.errors }, status: :unprocessable_content
     end
+
+    rescue_from Books::BookAlreadyBorrowed, Books::BookNotBorrowed do |error|
+      render json: { error: error.message }, status: :conflict
+    end
+
+    rescue_from Books::ReaderNotFound, Books::InvalidStatusChange do |error|
+      render json: { error: error.message }, status: :unprocessable_content
+    end
   end
 end

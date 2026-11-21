@@ -23,6 +23,28 @@ module Books
       raise BookNotFound, serial_number if deleted_count.zero?
     end
 
+    def find_book(serial_number)
+      Book.find_by(serial_number:) || raise(BookNotFound, serial_number)
+    end
+
+    def find_reader(card_number)
+      Reader.find_by(card_number:) || raise(ReaderNotFound, card_number)
+    end
+
+    def find_summary(serial_number)
+      to_summary(Book.strict_loading.includes(:active_loan).find_by!(serial_number:))
+    end
+
+    def create_loan(book:, reader:, borrowed_at:, due_on:)
+      Loan.create!(book:, reader:, borrowed_at:, due_on:)
+    rescue ActiveRecord::RecordNotUnique
+      raise BookAlreadyBorrowed, book.serial_number
+    end
+
+    def close_loan(loan, returned_at:)
+      loan.update!(returned_at:)
+    end
+
     private
 
     def to_summary(book)
