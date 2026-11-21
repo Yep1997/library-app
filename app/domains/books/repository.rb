@@ -41,6 +41,10 @@ module Books
       raise BookAlreadyBorrowed, book.serial_number
     end
 
+    def close_loan(loan, returned_at:)
+      loan.update!(returned_at:)
+    end
+
     private
 
     def to_summary(book)

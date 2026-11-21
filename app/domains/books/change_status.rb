@@ -1,6 +1,6 @@
 module Books
   class ChangeStatus
-    STATUSES = %w[borrowed].freeze
+    STATUSES = %w[borrowed available].freeze
 
     def initialize(repository:)
       @repository = repository
@@ -10,7 +10,7 @@ module Books
       raise InvalidStatusChange, "Status must be one of: #{STATUSES.join(", ")}" unless status.to_s.in?(STATUSES)
 
       book = repository.find_book(serial_number)
-      borrow(book, card_number)
+      status.to_s == "borrowed" ? borrow(book, card_number) : return_book(book)
       repository.find_summary(serial_number)
     end
 
@@ -24,6 +24,12 @@ module Books
 
       reader = repository.find_reader(card_number)
       repository.create_loan(book:, reader:, borrowed_at: Time.current, due_on: Date.current + LOAN_PERIOD)
+    end
+
+    def return_book(book)
+      raise BookNotBorrowed, book.serial_number unless book.active_loan
+
+      repository.close_loan(book.active_loan, returned_at: Time.current)
     end
   end
 end

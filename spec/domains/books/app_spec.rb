@@ -158,9 +158,31 @@ RSpec.describe Books::App do
       end
     end
 
+    context "when the status changes to available" do
+      it "marks the active loan as returned and makes the book available" do
+        loan = create(:loan, book:, borrowed_at: Time.zone.parse("2026-03-02 09:00"))
+
+        travel_to Time.zone.parse("2026-03-05 12:00") do
+          summary = app.change_status("000001", status: "available")
+
+          expect(summary).to have_attributes(serial_number: "000001", status: :available)
+          expect(loan.reload.returned_at).to eq(Time.zone.parse("2026-03-05 12:00"))
+        end
+      end
+
+      it "raises BookNotBorrowed when the book is not borrowed" do
+        expect { app.change_status("000001", status: "available") }
+          .to raise_error(Books::BookNotBorrowed, "Book 000001 is not borrowed")
+      end
+
+      it "raises BookNotFound for an unknown serial number" do
+        expect { app.change_status("999999", status: "available") }.to raise_error(Books::BookNotFound)
+      end
+    end
+
     it "rejects an unknown status" do
       expect { app.change_status("000001", status: "lost") }
-        .to raise_error(Books::InvalidStatusChange, "Status must be one of: borrowed")
+        .to raise_error(Books::InvalidStatusChange, "Status must be one of: borrowed, available")
     end
   end
 end
