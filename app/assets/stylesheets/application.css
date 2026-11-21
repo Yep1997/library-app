@@ -24,3 +24,12 @@ td {
 .status--borrowed {
   color: #cf222e;
 }
+
+.notice {
+  background: #dafbe1;
+  padding: 0.5rem 1rem;
+}
+
+.errors {
+  color: #cf222e;
+}

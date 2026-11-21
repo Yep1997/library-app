@@ -1,0 +1,31 @@
+<% content_for :title, "Add book" %>
+
+<%= link_to "All books", books_path %>
+
+<h1>Add book</h1>
+
+<% if @errors.any? %>
+  <ul class="errors">
+    <% @errors.each do |attribute, messages| %>
+      <% messages.each do |message| %>
+        <li><%= attribute.to_s.humanize %> <%= message %></li>
+      <% end %>
+    <% end %>
+  </ul>
+<% end %>
+
+<%= form_with scope: :book, url: books_path do |form| %>
+  <p>
+    <%= form.label :serial_number %>
+    <%= form.text_field :serial_number, value: @attributes[:serial_number] %>
+  </p>
+  <p>
+    <%= form.label :title %>
+    <%= form.text_field :title, value: @attributes[:title] %>
+  </p>
+  <p>
+    <%= form.label :author %>
+    <%= form.text_field :author, value: @attributes[:author] %>
+  </p>
+  <%= form.submit "Add book" %>
+<% end %>

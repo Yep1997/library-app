@@ -21,6 +21,12 @@ RSpec.describe "Books", type: :request do
       expect(response.body).to include(%(href="#{book_path("000001")}"))
     end
 
+    it "links to the form for adding a book" do
+      get books_path
+
+      expect(response.body).to include(%(href="#{new_book_path}"))
+    end
+
     it "is the home page" do
       get root_path
 
@@ -55,6 +61,33 @@ RSpec.describe "Books", type: :request do
       get book_path("999999")
 
       expect(response).to have_http_status(:not_found)
+    end
+  end
+
+  describe "GET /books/new" do
+    it "shows the form for adding a book" do
+      get new_book_path
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("Serial number", "Title", "Author")
+    end
+  end
+
+  describe "POST /books" do
+    it "adds the book and shows its page" do
+      post books_path, params: { book: { serial_number: "000001", title: "Refactoring", author: "Martin Fowler" } }
+
+      expect(response).to redirect_to(book_path("000001"))
+      follow_redirect!
+      expect(response.body).to include("Book was added.", "Refactoring")
+    end
+
+    it "shows the form again with errors when the data is invalid" do
+      post books_path, params: { book: { serial_number: "123", title: "Refactoring", author: "" } }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("Serial number must be a six-digit number", "Author can&#39;t be blank")
+      expect(response.body).to include(%(value="Refactoring"))
     end
   end
 end
