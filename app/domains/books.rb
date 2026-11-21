@@ -1,3 +1,5 @@
 module Books
-  private_constant :Repository
+  LOAN_PERIOD = 30.days
+
+  private_constant :Repository, :ChangeStatus
 end

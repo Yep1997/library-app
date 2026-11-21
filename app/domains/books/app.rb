@@ -20,6 +20,10 @@ module Books
       repository.delete(serial_number)
     end
 
+    def change_status(serial_number, status:, card_number: nil)
+      ChangeStatus.new(repository:).call(serial_number, status:, card_number:)
+    end
+
     private
 
     attr_reader :repository

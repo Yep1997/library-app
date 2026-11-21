@@ -118,4 +118,49 @@ RSpec.describe Books::App do
       expect { app.remove("999999") }.to raise_error(Books::BookNotFound, "Book 999999 not found")
     end
   end
+
+  describe "#change_status" do
+    let!(:book) { create(:book, serial_number: "000001", title: "Refactoring", author: "Martin Fowler") }
+    let!(:reader) { create(:reader, card_number: "100001") }
+
+    context "when the status changes to borrowed" do
+      it "lends the book to the reader for 30 days" do
+        travel_to Time.zone.parse("2026-03-01 10:00") do
+          summary = app.change_status("000001", status: "borrowed", card_number: "100001")
+
+          expect(summary).to have_attributes(serial_number: "000001", status: :borrowed)
+          expect(book.active_loan).to have_attributes(
+            reader:, borrowed_at: Time.zone.parse("2026-03-01 10:00"), due_on: Date.new(2026, 3, 31)
+          )
+        end
+      end
+
+      it "requires a card number" do
+        expect { app.change_status("000001", status: "borrowed") }
+          .to raise_error(Books::InvalidStatusChange, "Card number is required to borrow a book")
+      end
+
+      it "raises BookAlreadyBorrowed when the book is already borrowed" do
+        create(:loan, book:)
+
+        expect { app.change_status("000001", status: "borrowed", card_number: "100001") }
+          .to raise_error(Books::BookAlreadyBorrowed, "Book 000001 is already borrowed")
+      end
+
+      it "raises ReaderNotFound for an unknown card number" do
+        expect { app.change_status("000001", status: "borrowed", card_number: "999999") }
+          .to raise_error(Books::ReaderNotFound, "Reader 999999 not found")
+      end
+
+      it "raises BookNotFound for an unknown serial number" do
+        expect { app.change_status("999999", status: "borrowed", card_number: "100001") }
+          .to raise_error(Books::BookNotFound)
+      end
+    end
+
+    it "rejects an unknown status" do
+      expect { app.change_status("000001", status: "lost") }
+        .to raise_error(Books::InvalidStatusChange, "Status must be one of: borrowed")
+    end
+  end
 end
