@@ -1,7 +1,7 @@
 module Api
   class BooksController < BaseController
     def index
-      render json: { books: Books::App.list.map(&:to_h) }
+      render json: BookSummaryResource.new(Books::App.list)
     end
 
     def show
