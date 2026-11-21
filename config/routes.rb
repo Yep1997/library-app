@@ -7,7 +7,7 @@ Rails.application.routes.draw do
 
   root "books#index"
 
-  resources :books, only: :index
+  resources :books, only: %i[index show], param: :serial_number
 
   namespace :api, defaults: { format: :json } do
     resources :books, only: %i[index show], param: :serial_number
