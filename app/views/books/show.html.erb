@@ -13,6 +13,17 @@
   <dd class="status--<%= @book.status %>"><%= @book.status.to_s.humanize %></dd>
 </dl>
 
+<% if @book.status == :available %>
+  <%= form_with url: book_status_path(@book.serial_number), method: :patch do |form| %>
+    <%= form.hidden_field :status, value: "borrowed" %>
+    <%= form.label :card_number, "Reader" %>
+    <%= form.select :card_number, @readers.map { |reader| [ "#{reader.full_name} (#{reader.card_number})", reader.card_number ] } %>
+    <%= form.submit "Lend book" %>
+  <% end %>
+<% else %>
+  <%= button_to "Mark as returned", book_status_path(@book.serial_number), method: :patch, params: { status: "available" } %>
+<% end %>
+
 <%= button_to "Delete book", book_path(@book.serial_number), method: :delete %>
 
 <h2>Borrowing history</h2>

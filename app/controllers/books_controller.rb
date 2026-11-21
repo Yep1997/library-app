@@ -7,6 +7,7 @@ class BooksController < ApplicationController
 
   def show
     @book = Books::App.new.find(params[:serial_number])
+    @readers = Readers::App.new.list
   end
 
   def new

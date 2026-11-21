@@ -7,7 +7,9 @@ Rails.application.routes.draw do
 
   root "books#index"
 
-  resources :books, only: %i[index show new create destroy], param: :serial_number
+  resources :books, only: %i[index show new create destroy], param: :serial_number do
+    resource :status, only: :update, controller: :book_statuses
+  end
 
   namespace :api, defaults: { format: :json } do
     resources :books, only: %i[index show create destroy], param: :serial_number do
