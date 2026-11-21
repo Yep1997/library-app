@@ -88,4 +88,32 @@ RSpec.describe Books::App do
       expect(Book.count).to eq(0)
     end
   end
+
+  describe ".remove" do
+    it "removes the book together with its borrowing history, keeping the readers" do
+      book = create(:book, serial_number: "000001")
+      reader = create(:reader)
+      create(:loan, :returned, book:, reader:)
+      create(:loan, book:, reader:)
+
+      described_class.remove("000001")
+
+      expect(Book.exists?(book.id)).to be(false)
+      expect(Loan.where(book_id: book.id)).to be_empty
+      expect(Reader.exists?(reader.id)).to be(true)
+    end
+
+    it "leaves other books untouched" do
+      create(:book, serial_number: "000001")
+      other_book = create(:book, serial_number: "000002")
+
+      described_class.remove("000001")
+
+      expect(Book.all).to contain_exactly(other_book)
+    end
+
+    it "raises BookNotFound for an unknown serial number" do
+      expect { described_class.remove("999999") }.to raise_error(Books::BookNotFound, "Book 999999 not found")
+    end
+  end
 end

@@ -18,6 +18,11 @@ module Books
       to_summary(book)
     end
 
+    def delete(serial_number)
+      deleted_count = Book.where(serial_number:).delete_all
+      raise BookNotFound, serial_number if deleted_count.zero?
+    end
+
     private
 
     def to_summary(book)
