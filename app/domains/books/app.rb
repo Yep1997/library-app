@@ -1,10 +1,5 @@
 module Books
   class App
-    def self.list = new.list
-    def self.find(serial_number) = new.find(serial_number)
-    def self.add(...) = new.add(...)
-    def self.remove(serial_number) = new.remove(serial_number)
-
     def initialize(repository: Repository.new)
       @repository = repository
     end

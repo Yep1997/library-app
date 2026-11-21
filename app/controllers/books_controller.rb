@@ -2,11 +2,11 @@ class BooksController < ApplicationController
   include BookParams
 
   def index
-    @books = Books::App.list
+    @books = Books::App.new.list
   end
 
   def show
-    @book = Books::App.find(params[:serial_number])
+    @book = Books::App.new.find(params[:serial_number])
   end
 
   def new
@@ -15,7 +15,7 @@ class BooksController < ApplicationController
   end
 
   def create
-    book = Books::App.add(**book_params)
+    book = Books::App.new.add(**book_params)
 
     redirect_to book_path(book.serial_number), notice: "Book was added."
   rescue Books::InvalidBook => error
@@ -25,7 +25,7 @@ class BooksController < ApplicationController
   end
 
   def destroy
-    Books::App.remove(params[:serial_number])
+    Books::App.new.remove(params[:serial_number])
 
     redirect_to books_path, notice: "Book was removed."
   end
