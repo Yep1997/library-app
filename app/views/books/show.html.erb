@@ -1,0 +1,41 @@
+<% content_for :title, @book.title %>
+
+<%= link_to "All books", books_path %>
+
+<h1><%= @book.title %></h1>
+
+<dl>
+  <dt>Author</dt>
+  <dd><%= @book.author %></dd>
+  <dt>Serial number</dt>
+  <dd><%= @book.serial_number %></dd>
+  <dt>Status</dt>
+  <dd class="status--<%= @book.status %>"><%= @book.status.to_s.humanize %></dd>
+</dl>
+
+<h2>Borrowing history</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Borrowed at</th>
+      <th>Due on</th>
+      <th>Returned at</th>
+      <th>Reader</th>
+      <th>Card number</th>
+      <th>Email</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @book.loans.each do |loan| %>
+      <tr>
+        <td><%= l(loan.borrowed_at, format: :long) %></td>
+        <td><%= l(loan.due_on, format: :long) %></td>
+        <td><%= loan.returned_at ? l(loan.returned_at, format: :long) : "Not returned yet" %></td>
+        <td><%= loan.borrower.full_name %></td>
+        <td><%= loan.borrower.card_number %></td>
+        <td><%= loan.borrower.email %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

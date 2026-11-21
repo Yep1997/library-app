@@ -15,7 +15,7 @@
     <% @books.each do |book| %>
       <tr>
         <td><%= book.serial_number %></td>
-        <td><%= book.title %></td>
+        <td><%= link_to book.title, book_path(book.serial_number) %></td>
         <td><%= book.author %></td>
         <td class="status status--<%= book.status %>"><%= book.status.to_s.humanize %></td>
       </tr>
