@@ -5,19 +5,23 @@ module Books
     end
 
     def list
-      @repository.all
+      repository.all
     end
 
     def find(serial_number)
-      @repository.find(serial_number)
+      repository.find(serial_number)
     end
 
     def add(serial_number:, title:, author:)
-      @repository.create(serial_number:, title:, author:)
+      repository.create(serial_number:, title:, author:)
     end
 
     def remove(serial_number)
-      @repository.delete(serial_number)
+      repository.delete(serial_number)
     end
+
+    private
+
+    attr_reader :repository
   end
 end
