@@ -17,5 +17,11 @@ module Api
 
       render json: BookSummaryResource.new(book), status: :created, location: api_book_url(book.serial_number)
     end
+
+    def destroy
+      Books::App.remove(params[:serial_number])
+
+      head :no_content
+    end
   end
 end
