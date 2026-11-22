@@ -20,4 +20,20 @@ RSpec.describe LoanReminderMailer, type: :mailer do
       expect(mail.body.encoded).to include("Anna Kowalska", "Refactoring", "2026-12-24")
     end
   end
+
+  describe "#due_today" do
+    subject(:mail) { described_class.with(loan:).due_today }
+
+    it "is addressed to the borrower" do
+      expect(mail.to).to eq([ "anna@example.com" ])
+    end
+
+    it "names the book in the subject" do
+      expect(mail.subject).to eq("Refactoring is due today")
+    end
+
+    it "tells the reader who they are and what to return today" do
+      expect(mail.body.encoded).to include("Anna Kowalska", "Refactoring", "today")
+    end
+  end
 end

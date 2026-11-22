@@ -5,6 +5,10 @@ class LoanReminderMailer < ApplicationMailer
     mail(to: loan.reader.email, subject: "#{loan.book.title} is due soon")
   end
 
+  def due_today
+    mail(to: loan.reader.email, subject: "#{loan.book.title} is due today")
+  end
+
   private
 
   def loan

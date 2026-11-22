@@ -3,6 +3,10 @@ class LoanReminderMailerPreview < ActionMailer::Preview
     LoanReminderMailer.with(loan: sample_loan(due_on: Date.current + 3)).due_soon
   end
 
+  def due_today
+    LoanReminderMailer.with(loan: sample_loan(due_on: Date.current)).due_today
+  end
+
   private
 
   def sample_loan(due_on:)
