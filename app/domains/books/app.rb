@@ -24,6 +24,10 @@ module Books
       ChangeStatus.new(repository:).call(serial_number, status:, card_number:)
     end
 
+    def send_return_reminders
+      SendReturnReminders.new(repository:).call
+    end
+
     private
 
     attr_reader :repository
