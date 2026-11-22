@@ -53,6 +53,14 @@ module Books
       loan.update!(due_soon_reminder_sent_at: sent_at)
     end
 
+    def loans_awaiting_due_today_reminder(due_on:)
+      Loan.active.strict_loading.includes(:book, :reader).where(due_on:, due_today_reminder_sent_at: nil)
+    end
+
+    def mark_due_today_reminder_sent(loan, sent_at:)
+      loan.update!(due_today_reminder_sent_at: sent_at)
+    end
+
     private
 
     def to_summary(book)

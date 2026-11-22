@@ -222,5 +222,44 @@ RSpec.describe Books::App do
 
       expect { app.send_return_reminders }.not_to have_enqueued_mail(LoanReminderMailer, :due_soon)
     end
+
+    it "reminds the borrower of a book due today" do
+      loan = create(:loan, due_on: Date.current)
+
+      expect { app.send_return_reminders }
+        .to have_enqueued_mail(LoanReminderMailer, :due_today).with(params: { loan: }, args: [])
+    end
+
+    it "does not send the due today reminder before the due date" do
+      create(:loan, due_on: Date.current + 1)
+
+      expect { app.send_return_reminders }.not_to have_enqueued_mail(LoanReminderMailer, :due_today)
+    end
+
+    it "does not send the due today reminder after the due date" do
+      create(:loan, borrowed_at: 31.days.ago, due_on: Date.current - 1)
+
+      expect { app.send_return_reminders }.not_to have_enqueued_mail(LoanReminderMailer, :due_today)
+    end
+
+    it "does not send the due today reminder for a returned book" do
+      create(:loan, :returned, due_on: Date.current)
+
+      expect { app.send_return_reminders }.not_to have_enqueued_mail(LoanReminderMailer, :due_today)
+    end
+
+    it "sends the due today reminder only once" do
+      create(:loan, due_on: Date.current)
+      app.send_return_reminders
+
+      expect { app.send_return_reminders }.not_to have_enqueued_mail(LoanReminderMailer, :due_today)
+    end
+
+    it "still sends the due today reminder after the due soon reminder" do
+      loan = create(:loan, due_on: Date.current, due_soon_reminder_sent_at: 3.days.ago)
+
+      expect { app.send_return_reminders }
+        .to have_enqueued_mail(LoanReminderMailer, :due_today).with(params: { loan: }, args: [])
+    end
   end
 end
