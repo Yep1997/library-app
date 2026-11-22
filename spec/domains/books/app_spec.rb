@@ -185,4 +185,42 @@ RSpec.describe Books::App do
         .to raise_error(Books::InvalidStatusChange, "Status must be one of: borrowed, available")
     end
   end
+
+  describe "#send_return_reminders" do
+    around { |example| travel_to(Time.zone.local(2026, 12, 1, 12)) { example.run } }
+
+    [ 1, 2, 3 ].each do |days|
+      it "reminds the borrower of a book due in #{days} day(s)" do
+        loan = create(:loan, due_on: Date.current + days)
+
+        expect { app.send_return_reminders }
+          .to have_enqueued_mail(LoanReminderMailer, :due_soon).with(params: { loan: }, args: [])
+      end
+    end
+
+    it "does not remind about a book due in more than 3 days" do
+      create(:loan, due_on: Date.current + 4)
+
+      expect { app.send_return_reminders }.not_to have_enqueued_mail(LoanReminderMailer, :due_soon)
+    end
+
+    it "does not send the due soon reminder on the due date" do
+      create(:loan, due_on: Date.current)
+
+      expect { app.send_return_reminders }.not_to have_enqueued_mail(LoanReminderMailer, :due_soon)
+    end
+
+    it "does not remind about a returned book" do
+      create(:loan, :returned, due_on: Date.current + 3)
+
+      expect { app.send_return_reminders }.not_to have_enqueued_mail(LoanReminderMailer, :due_soon)
+    end
+
+    it "sends the due soon reminder only once" do
+      create(:loan, due_on: Date.current + 3)
+      app.send_return_reminders
+
+      expect { app.send_return_reminders }.not_to have_enqueued_mail(LoanReminderMailer, :due_soon)
+    end
+  end
 end
