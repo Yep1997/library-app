@@ -1,54 +1,73 @@
 <% content_for :title, @book.title %>
 
-<%= link_to "All books", books_path %>
+<%= link_to "← All books", books_path, class: "back-link" %>
 
-<h1><%= @book.title %></h1>
+<div class="page-header">
+  <div>
+    <h1><%= @book.title %></h1>
+    <p class="subtitle"><%= @book.author %></p>
+  </div>
+  <span class="badge badge--<%= @book.status %>"><%= @book.status.to_s.humanize %></span>
+</div>
 
-<dl>
-  <dt>Author</dt>
-  <dd><%= @book.author %></dd>
-  <dt>Serial number</dt>
-  <dd><%= @book.serial_number %></dd>
-  <dt>Status</dt>
-  <dd class="status--<%= @book.status %>"><%= @book.status.to_s.humanize %></dd>
-</dl>
+<section class="card card--padded book-panel">
+  <dl class="details">
+    <dt>Serial number</dt>
+    <dd class="mono"><%= @book.serial_number %></dd>
+  </dl>
 
-<% if @book.status == :available %>
-  <%= form_with url: book_status_path(@book.serial_number), method: :patch do |form| %>
-    <%= form.hidden_field :status, value: "borrowed" %>
-    <%= form.label :card_number, "Reader" %>
-    <%= form.select :card_number, @readers.map { |reader| [ "#{reader.full_name} (#{reader.card_number})", reader.card_number ] } %>
-    <%= form.submit "Lend book" %>
-  <% end %>
-<% else %>
-  <%= button_to "Mark as returned", book_status_path(@book.serial_number), method: :patch, params: { status: "available" } %>
-<% end %>
+  <div class="actions">
+    <% if @book.status == :available %>
+      <%= form_with url: book_status_path(@book.serial_number), method: :patch, class: "lend-form" do |form| %>
+        <%= form.hidden_field :status, value: "borrowed" %>
+        <%= form.label :card_number, "Reader" %>
+        <%= form.select :card_number, @readers.map { |reader| [ "#{reader.full_name} (#{reader.card_number})", reader.card_number ] } %>
+        <%= form.submit "Lend book", class: "button button--primary" %>
+      <% end %>
+    <% else %>
+      <%= button_to "Mark as returned", book_status_path(@book.serial_number), method: :patch, params: { status: "available" }, class: "button button--primary" %>
+    <% end %>
 
-<%= button_to "Delete book", book_path(@book.serial_number), method: :delete %>
+    <%= button_to "Delete book", book_path(@book.serial_number), method: :delete, class: "button button--danger" %>
+  </div>
+</section>
 
 <h2>Borrowing history</h2>
 
-<table>
-  <thead>
-    <tr>
-      <th>Borrowed at</th>
-      <th>Due on</th>
-      <th>Returned at</th>
-      <th>Reader</th>
-      <th>Card number</th>
-      <th>Email</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @book.loans.each do |loan| %>
-      <tr>
-        <td><%= l(loan.borrowed_at, format: :long) %></td>
-        <td><%= l(loan.due_on, format: :long) %></td>
-        <td><%= loan.returned_at ? l(loan.returned_at, format: :long) : "Not returned yet" %></td>
-        <td><%= loan.borrower.full_name %></td>
-        <td><%= loan.borrower.card_number %></td>
-        <td><%= loan.borrower.email %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+<section class="card">
+  <% if @book.loans.any? %>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Reader</th>
+            <th>Borrowed at</th>
+            <th>Due on</th>
+            <th>Returned at</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @book.loans.each do |loan| %>
+            <tr>
+              <td>
+                <span class="reader-name"><%= loan.borrower.full_name %></span>
+                <span class="muted"><%= loan.borrower.card_number %> · <%= loan.borrower.email %></span>
+              </td>
+              <td class="nowrap"><%= l(loan.borrowed_at, format: :long) %></td>
+              <td class="nowrap"><%= l(loan.due_on, format: :long) %></td>
+              <td class="nowrap">
+                <% if loan.returned_at %>
+                  <%= l(loan.returned_at, format: :long) %>
+                <% else %>
+                  <span class="badge badge--borrowed">Not returned yet</span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <p class="empty">This book has not been borrowed yet.</p>
+  <% end %>
+</section>

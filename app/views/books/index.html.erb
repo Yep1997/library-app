@@ -1,26 +1,35 @@
 <% content_for :title, "Books" %>
 
-<h1>Books</h1>
+<div class="page-header">
+  <h1>Books</h1>
+  <%= link_to "Add book", new_book_path, class: "button button--primary" %>
+</div>
 
-<%= link_to "Add book", new_book_path %>
-
-<table>
-  <thead>
-    <tr>
-      <th>Serial number</th>
-      <th>Title</th>
-      <th>Author</th>
-      <th>Status</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @books.each do |book| %>
-      <tr>
-        <td><%= book.serial_number %></td>
-        <td><%= link_to book.title, book_path(book.serial_number) %></td>
-        <td><%= book.author %></td>
-        <td class="status status--<%= book.status %>"><%= book.status.to_s.humanize %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+<section class="card">
+  <% if @books.any? %>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Serial number</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @books.each do |book| %>
+            <tr>
+              <td class="mono"><%= book.serial_number %></td>
+              <td><%= link_to book.title, book_path(book.serial_number), class: "strong-link" %></td>
+              <td><%= book.author %></td>
+              <td><span class="badge badge--<%= book.status %>"><%= book.status.to_s.humanize %></span></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <p class="empty">No books yet.</p>
+  <% end %>
+</section>
