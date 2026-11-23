@@ -59,7 +59,6 @@ docker compose exec web bin/rails runner \
 - **Clear responsibilities:** services hold business rules, the repository handles persistence, and controllers only translate HTTP.
 - **Loans as the source of truth:** a book is borrowed when it has a loan without `returned_at`, so status and history cannot drift apart.
 - **Integrity in the database:** unique indexes protect identifiers, and a partial unique index allows only one active loan per book.
-- **Solid Queue:** background jobs run on PostgreSQL, so the project needs no Redis.
 
 ## Limitations
 
@@ -67,5 +66,3 @@ docker compose exec web bin/rails runner \
 - Book lists have no pagination or search.
 - Deleting a book also deletes its borrowing history, even while it is borrowed.
 - Dates use UTC, so "today" can differ from the library's local date around midnight.
-- The Docker setup targets development and is not production-ready.
-- Malformed API requests receive an HTML `400` response instead of JSON.
